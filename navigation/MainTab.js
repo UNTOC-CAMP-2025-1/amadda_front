@@ -16,6 +16,7 @@ export default function MainTabs() {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: MainTabStyles.container,
+        tabBarItemStyle: MainTabStyles.tabBarItem,
         tabBarIconStyle: MainTabStyles.tabBarIcon,
         tabBarIcon: ({ focused }) => {
           let iconSource;

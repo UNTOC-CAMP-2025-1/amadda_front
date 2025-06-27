@@ -16,7 +16,11 @@ const MainTabStyles = StyleSheet.create({
   tabBarIcon: {
     flex: 1,
   },
+  tabBarItem: {
+    overflow: "hidden",
+  },
   tabBarImage: {
+    height: "115%",
     resizeMode: "contain",
   },
 });
