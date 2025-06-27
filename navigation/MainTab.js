@@ -1,4 +1,5 @@
 import React from "react";
+import { Image } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import PersonalCalendarScreen from "../screens/PersonalCalendar";
 import SettingsScreen from "../screens/SettingScreen";
@@ -11,33 +12,37 @@ const Tab = createBottomTabNavigator();
 export default function MainTabs() {
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={({ route }) => ({
         headerShown: false,
+        tabBarShowLabel: false,
         tabBarStyle: MainTabStyles.container,
+        tabBarIconStyle: MainTabStyles.tabBarIcon,
         tabBarIcon: ({ focused }) => {
           let iconSource;
 
-          if (Route.name === "PersonalCalendar") {
+          if (route.name === "PersonalCalendar") {
             iconSource = focused
               ? require("../assets/Tab/PersonalCalendarTabbed.png")
               : require("../assets/Tab/PersonalCalendarUnTabbed.png");
-          } else if (Route.name === "Settings") {
-            iconSource = focused
-              ? require("../assets/Tab/SettingsTabbed.png")
-              : require("../assets/Tab/SettingUnTabbed.png");
-          } else if (Route.name === "GroupList") {
+          } else if (route.name === "GroupList") {
             iconSource = focused
               ? require("../assets/Tab/GroupCalendarTabbed.png")
               : require("../assets/Tab/GroupCalendarUnTabbed.png");
+          } else if (route.name === "Settings") {
+            iconSource = focused
+              ? require("../assets/Tab/SettingsTabbed.png")
+              : require("../assets/Tab/SettingUnTabbed.png");
           }
 
-          return <Image source={iconSource} />;
+          return (
+            <Image source={iconSource} style={MainTabStyles.tabBarImage} />
+          );
         },
-      }}
+      })}
     >
       <Tab.Screen name="PersonalCalendar" component={PersonalCalendarScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
       <Tab.Screen name="GroupList" component={GroupListScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
 }

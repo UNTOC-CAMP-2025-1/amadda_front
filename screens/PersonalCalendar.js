@@ -10,11 +10,16 @@ import {
   FlatList,
 } from "react-native";
 import { themeColors, categories, groups } from "../Colors";
+import Header from "../components/header";
 
 import styles from "../styles/PersonalCalendarStyles";
 
 const PersonalCalendar = () => {
-  return <View></View>;
+  return (
+    <View style={styles.container}>
+      <Header />
+    </View>
+  );
 };
 
 export default PersonalCalendar;
