@@ -12,14 +12,9 @@ import {
 import { themeColors, categories, groups } from "../Colors";
 
 import styles from "../styles/GroupListScreenStyles";
-import Header from "../components/header";
 
 const GroupListScreen = () => {
-  return (
-    <View>
-      <Header />
-    </View>
-  );
+  return <View></View>;
 };
 
 export default GroupListScreen;

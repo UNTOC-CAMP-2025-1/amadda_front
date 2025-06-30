@@ -12,15 +12,9 @@ import {
 import { themeColors, categories, groups } from "../Colors";
 
 import styles from "../styles/GroupScreenStyles";
-import Header from "../components/header";
-import Calendar from "../components/calendar";
 
 const GroupScreen = () => {
-  return (
-    <View>
-      <Header />
-    </View>
-  );
+  return <View></View>;
 };
 
 export default GroupScreen;

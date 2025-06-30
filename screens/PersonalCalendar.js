@@ -12,16 +12,9 @@ import {
 import { themeColors, categories, groups } from "../Colors";
 
 import styles from "../styles/PersonalCalendarStyles";
-import Header from "../components/header";
-import Calendar from "../components/calendar";
 
 const PersonalCalendar = () => {
-  return (
-    <View style={styles.container}>
-      <Header />
-      <Calendar />
-    </View>
-  );
+  return <View></View>;
 };
 
 export default PersonalCalendar;

@@ -10,7 +10,7 @@ import MainTab from "./navigation/MainTab";
 const Stack = createNativeStackNavigator();
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   return (
     <NavigationContainer>
@@ -18,13 +18,14 @@ const App = () => {
         initialRouteName="LoginScreen"
         screenOptions={{ animationEnabled: false, headerShown: false }}
       >
-        {!isLoggedIn ? (
+        {/* {!isLoggedIn ? (
           <Stack.Screen name="LoginScreen">
             {() => <LoginScreen onLogin={() => setIsLoggedIn(true)} />}
           </Stack.Screen>
         ) : (
           <Stack.Screen name="Main" component={MainTab} />
-        )}
+        )} */}
+        <Stack.Screen name="LoginScreen" component={LoginScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
