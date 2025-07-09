@@ -58,6 +58,7 @@ const SignUpScreen = () => {
       if (timerId) clearTimeout(timerId);
     };
   }, []);
+  
   return (
     <View style={styles.mainContainer}>
       {/* 로고 */}
@@ -150,6 +151,7 @@ const SignUpScreen = () => {
               style={styles.textInput}
               value={code}
               onChangeText={setCode}
+              editable={!codeVerified}
             />
           </ImageBackground>
           {codeVerified ? (
@@ -307,12 +309,11 @@ const SignUpScreen = () => {
                     }
                   }
                 );
-                if (res.status === 200) {
-                  alert("회원가입이 완료되었습니다.");
+                  Alert.alert("회원가입 성공",
+                    "회원가입이 완료되었습니다.",
+                  { cancelable: false }
+                  );
                   navigation.navigate("LoginScreen");
-                } else {
-                  alert("회원가입에 실패했습니다.");
-                }
               } catch (err) {
                 console.error(err);
                 alert("서버 오류가 발생했습니다.");
