@@ -21,34 +21,37 @@ const LoginScreen = ({ onLogin }) => {
 
 
   const login = async () => {
-    const formBody = `username=${encodeURIComponent(id)}&password=${encodeURIComponent(pw)}`;
+    const formData = new URLSearchParams();
+    formData.append("grant_type", "password"); // 필수
+    formData.append("username", id);
+    formData.append("password", pw);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/users/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        credentials: "include",
-        body: formBody,
-      });
+      const response = await api.post(
+        "/users/login",
+        formData, // 여기 중요
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
+        }
+      );
 
-      const result = await response.json();
+      const result = response.data; // axios는 자동 JSON 파싱
       console.log("로그인 응답 result:", result);
 
-      if (response.ok && result.access_token) {
-        // 토큰 저장
+      if (response.status === 200 && result.access_token) {
         await SecureStore.setItemAsync("accessToken", String(result.access_token));
         await SecureStore.setItemAsync("refreshToken", String(result.refresh_token));
 
-        // 사용자 정보 가져오기 (api.js에 자동 토큰 넣음 & 재발급)
         const protectedRes = await api.get("/users/info");
         const protectedData = protectedRes.data;
 
         console.log("보호된 유저 데이터:", protectedData);
-        setUserInfo(protectedData); // 전역 상태 저장
+        setUserInfo(protectedData);
         setIsLoggedIn(true);
       } else {
         console.log("로그인 실패: 응답 비정상 또는 토큰 없음");
-        console.log("로그인 응답 result:", result);
         alert("로그인 실패: " + JSON.stringify(result));
       }
     } catch (err) {
@@ -74,6 +77,7 @@ const LoginScreen = ({ onLogin }) => {
           style={styles.input}
           value={id}
           onChangeText={setId}
+          maxLength={20}
         />
       </View>
 
@@ -88,6 +92,7 @@ const LoginScreen = ({ onLogin }) => {
           secureTextEntry
           value={pw}
           onChangeText={setPw}
+          maxLength={16}
         />
       </View>
 

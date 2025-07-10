@@ -327,7 +327,7 @@ const GroupListScreen = () => {
                 value={searchText}
                 onChangeText={setSearchText}
                 style={styles.searchInput}
-                maxLength={16}
+                maxLength={9}
               />
             </View>
           )}
@@ -398,7 +398,7 @@ const GroupListScreen = () => {
                   value={groupName}
                   onChangeText={setGroupName}
                   style={styles.input}
-                  maxLength={20}
+                  maxLength={10}
                 />
                 </ImageBackground>
                 </View>
@@ -413,7 +413,7 @@ const GroupListScreen = () => {
                   value={groupPassword}
                   onChangeText={setGroupPassword}
                   style={styles.input}
-                  maxLength={20}
+                  maxLength={10}
                 />
                 </ImageBackground>
                 </View>
@@ -471,7 +471,7 @@ const GroupListScreen = () => {
                   value={groupPassword}
                   onChangeText={setGroupPassword}
                   style={styles.input}
-                  maxLength={20}
+                  maxLength={10}
                 />
                 </ImageBackground>
                 </View>

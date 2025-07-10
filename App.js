@@ -7,6 +7,7 @@ import * as SecureStore from "expo-secure-store";
 import LoginScreen from "./screens/LoginScreen";
 import FindPwScreen from "./screens/FindPwScreen";
 import SignUpScreen from "./screens/SignUpScreen";
+
 import DeluserScreen from "./screens/DeluserScreen";
 import MainTab from "./navigation/MainTab";
 import ChangePwScreen from "./screens/changePwScreen";
@@ -28,4 +29,3 @@ export default function App() {
     </GestureHandlerRootView>
   );
 }
-

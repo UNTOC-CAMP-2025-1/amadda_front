@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 
 import { themeColors, categories, groups } from "../Colors";
 
-const FindPwScreenStyles = StyleSheet.create({
+const DeluserScreenStyles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     padding: 20,
@@ -128,4 +128,4 @@ const FindPwScreenStyles = StyleSheet.create({
   },
 });
 
-export default FindPwScreenStyles;
+export default DeluserScreenStyles;

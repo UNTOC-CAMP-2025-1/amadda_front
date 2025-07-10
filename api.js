@@ -10,7 +10,7 @@ const api = axios.create({
   withCredentials: true, // 서버 쿠키 필요시
 });
 
-// ✅ 요청 인터셉터: SecureStore에서 accessToken 꺼내기
+// 요청 인터셉터: SecureStore에서 accessToken 꺼내기
 api.interceptors.request.use(
   async (config) => {
     const token = await SecureStore.getItemAsync("accessToken");
@@ -22,7 +22,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ 응답 인터셉터: 자동 토큰 재발급
+// 응답 인터셉터: 자동 토큰 재발급
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
