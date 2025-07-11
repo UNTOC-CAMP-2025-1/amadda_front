@@ -69,7 +69,7 @@ const LoginScreen = ({ onLogin }) => {
       <View style={styles.container_login1}>
         <Image
           source={require("../assets/images/personIcon.png")}
-          style={styles.Login_idpw}
+          style={styles.Login_icon}
         />
         <TextInput
           placeholder="ID"

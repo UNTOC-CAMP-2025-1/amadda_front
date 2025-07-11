@@ -58,7 +58,13 @@ const LoginScreenStyles = StyleSheet.create({
 
   Login_idpw: {
     width: 25,
-    height: 25
+    height: 25,
+    resizeMode: "contain",
+  },
+  Login_icon: {
+    width: 22,
+    height: 22,
+    resizeMode: "contain",
   },
 
   Button: {

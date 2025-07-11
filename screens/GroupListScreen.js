@@ -15,10 +15,9 @@ import {
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import api from "../api";
 
-import * as SecureStore from "expo-secure-store";
 import styles from "../styles/GroupListScreenStyles";
 import Header from "../components/header";
-import { groups } from "../Colors";
+import { groups, themeColors } from "../Colors";
 import { AuthContext } from "../context/AuthContext";
 
 const GroupListScreen = () => {
@@ -28,7 +27,6 @@ const GroupListScreen = () => {
   const [selectedTab, setSelectedTab] = useState("create"); // "create" or "join"
   const [groupName, setGroupName] = useState("");
   const [groupCode, setGroupCode] = useState("");
-  //const [groupCode, setGroupCode] = useState(generateRandomCode());
   const [groupPassword, setGroupPassword] = useState("");
   const [groupList, setGroupList] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -52,30 +50,6 @@ const GroupListScreen = () => {
     setGroupCode("");
     setGroupPassword("");
   };
-
-  const ensureValidAccessToken = async () => {
-    try {
-      // 1. 유효성 검사
-      await api.get("/users/verify_token");
-    } catch (error) {
-      if (error.response && error.response.status === 401) {
-        // 2. 만료됐으면 새로 발급
-        console.log("Access Token 만료, 새로 발급 요청");
-        try {
-          const refreshResponse = await api.post("users/refresh_token");
-          const newAccessToken = refreshResponse.data.accessToken;
-          await SecureStore.setItemAsync("accessToken", newAccessToken);
-          console.log("Access Token 재발급 완료");
-        } catch (refreshError) {
-          console.error("토큰 재발급 실패:", refreshError);
-          throw new Error("세션이 만료되었습니다. 다시 로그인해주세요.");
-        }
-      } else {
-        throw error;
-      }
-    }
-  };
-
 
   const handleCreateGroup = async () => {
     if (groupName.trim() === "") {
@@ -219,18 +193,8 @@ const GroupListScreen = () => {
 
   const handleLeaveGroup = async (group) => {
     try {
-      // 1. 유효성 검사 + 토큰 재발급
-      await ensureValidAccessToken();
-
-      // 2. 최신 토큰 꺼내오기
-      const token = await SecureStore.getItemAsync("accessToken");
-
-      // 3. 권한 확인 요청
       const authResponse = await api.get("/group/my_auth", {
         params: { code: group.code },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       const auth = authResponse.data;
@@ -519,10 +483,10 @@ const GroupListScreen = () => {
                   />
                 </View>
                 <View style={styles.groupInfo}>
-                  <Text style={[styles.groupName, { color: colorTheme.text }]}>
+                  <Text style={ styles.groupName }>
                     {item.name}
                   </Text>
-                  <Text style={[styles.groupCreator, { color: colorTheme.text }]}>
+                  <Text style={ styles.groupCreator }>
                     {item.creator}
                   </Text>
                 </View>
