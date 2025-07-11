@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useNavigation } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -11,7 +12,6 @@ import {
   ImageBackground,
   Alert,
 } from "react-native";
-import * as Clipboard from "expo-clipboard";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import api from "../api";
 
@@ -22,6 +22,7 @@ import { groups } from "../Colors";
 import { AuthContext } from "../context/AuthContext";
 
 const GroupListScreen = () => {
+  const navigation = useNavigation();
   const { userInfo } = useContext(AuthContext);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedTab, setSelectedTab] = useState("create"); // "create" or "join"
@@ -34,8 +35,12 @@ const GroupListScreen = () => {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
 
   useEffect(() => {
-    loadGroups();
-  }, []);
+    const unsubscribe = navigation.addListener("focus", () => {
+      loadGroups();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   const openModal = () => {
     //setGroupCode(generateRandomCode());
@@ -123,7 +128,6 @@ const GroupListScreen = () => {
     }
 
     try {
-      const token = await SecureStore.getItemAsync("accessToken");
       const response = await api.post(
         "/group/register",
         {
@@ -131,7 +135,7 @@ const GroupListScreen = () => {
           password: groupPassword,
         },
       );
-
+      Alert.alert("그룹 참가 성공", "그룹 참가에 성공하였습니다.");
       // 성공 처리
       await loadGroups();
       closeModal();
@@ -501,7 +505,8 @@ const GroupListScreen = () => {
           const colorTheme = groups[item.colorKey] || groups["group1"];
           return (
             <Swipeable renderRightActions={() => renderRightActions(item)}>
-            <TouchableOpacity style={styles.groupItem}>
+            <TouchableOpacity style={styles.groupItem}
+              onPress={() => navigation.navigate("GroupScreen", { group: item })}>
               <View 
                 style={[styles.groupIconContainer, 
                 { backgroundColor: colorTheme.checkbox }]}>

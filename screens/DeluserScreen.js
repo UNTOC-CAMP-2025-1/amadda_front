@@ -21,6 +21,7 @@ import { AuthContext } from "../context/AuthContext";
 const DeluserScreen = () => {
   const { setIsLoggedIn } = useContext(AuthContext);
   const [email, setEmail] = useState("");
+  const [isEmailSended, setIsEmailSended] = useState(false);
   const [code, setCode] = useState("");
   const [codeVerified, setCodeVerified] = useState(false);
   useEffect(() => {
@@ -99,8 +100,15 @@ const DeluserScreen = () => {
                 //   routes: [{ name: "LoginScreen" }], // LoginScreen으로 이동
                 // });
               } catch (error) {
-                console.error("탈퇴 네트워크 오류:", error);
-                Alert.alert("오류", "서버에 연결할 수 없습니다.");
+                if (error.response?.status === 409) {
+                  alert("이메일 인증을 다시 시도해주세요.")
+                  setIsEmailSended(false);
+                } else {
+                  console.error("서버 응답 상태:", err.response?.status);
+                  console.error("서버 응답 데이터:", err.response?.data);
+                  alert("비밀번호 변경 중 오류가 발생했습니다.\n다시 시도해주세요.");
+                  setIsEmailSended(false);
+                }
               }
             },
           },
@@ -139,6 +147,7 @@ const DeluserScreen = () => {
               value={email}
               onChangeText={setEmail}
               maxLength={45}
+              editable={!isEmailSended}
             />
           </ImageBackground>
           <TouchableOpacity
@@ -149,9 +158,13 @@ const DeluserScreen = () => {
                 return;
               }
               try {
-                const res = await api.post(
-                  "/email/request",
-                  { email },
+                const res = await api.post("/email/user_request", 
+                  {
+                    email: email
+                  },
+                  {
+                    headers: { "Authorization": undefined }
+                  }
                 );
 
                 // 상태 코드가 200이면 성공 처리
@@ -162,12 +175,15 @@ const DeluserScreen = () => {
                     ["emailSendTime", sendTime.toString()],
                     ["emailAddress", email],
                   ]);
+                  setIsEmailSended(true); 
                 } else {
                   alert("예상치 못한 응답이 왔습니다.");
                 }
               } catch (err) {
                 if (err.response?.status === 422) {
                   alert("잘못된 이메일 형식입니다.");
+                } else if (err.response?.status === 405) {
+                  alert("이메일을 다시 확인해주세요.");
                 } else {
                   console.error("서버 응답 상태:", err.response?.status);
                   console.error("서버 응답 데이터:", err.response?.data);

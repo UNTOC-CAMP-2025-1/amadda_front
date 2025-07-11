@@ -28,7 +28,13 @@ const getISODate = (year, month, date) => {
   return new Date(year, month - 1, date, 12).toISOString();
 };
 
-const AddTodoModal = ({ visible, onClose, onAddTodo, selectedDate }) => {
+const AddTodoModal = ({
+  visible,
+  onClose,
+  onAddTodo,
+  selectedDate,
+  personal,
+}) => {
   const today = new Date();
 
   const [todoText, setTodoText] = useState("");
@@ -84,7 +90,7 @@ const AddTodoModal = ({ visible, onClose, onAddTodo, selectedDate }) => {
       alert("일정 내용을 입력해주세요.");
       return false;
     }
-    if (!selectedCategory) {
+    if (personal && !selectedCategory) {
       alert("카테고리를 선택해주세요.");
       return false;
     }
@@ -182,39 +188,43 @@ const AddTodoModal = ({ visible, onClose, onAddTodo, selectedDate }) => {
                     </Picker>
                   </View>
                 </View>
-                <Text style={styles.inputLabels}>카테고리</Text>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  style={styles.categoryScroll}
-                >
-                  {Array.isArray(categoryList) &&
-                    categoryList.map((item) => (
-                      <TouchableOpacity
-                        key={item.id}
-                        onPress={() => setSelectedCategory(item)}
-                        style={[
-                          styles.categoryBox,
-                          {
-                            backgroundColor: categories[item.colorKey].bg,
-                            borderColor:
-                              selectedCategory?.id === item.id
-                                ? themeColors.highlight
-                                : "transparent",
-                          },
-                        ]}
-                      >
-                        <Text
-                          style={{
-                            color: categories[item.colorKey].text,
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {item.name}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                </ScrollView>
+                {personal && (
+                  <View>
+                    <Text style={styles.inputLabels}>카테고리</Text>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      style={styles.categoryScroll}
+                    >
+                      {Array.isArray(categoryList) &&
+                        categoryList.map((item) => (
+                          <TouchableOpacity
+                            key={item.id}
+                            onPress={() => setSelectedCategory(item)}
+                            style={[
+                              styles.categoryBox,
+                              {
+                                backgroundColor: categories[item.colorKey].bg,
+                                borderColor:
+                                  selectedCategory?.id === item.id
+                                    ? themeColors.highlight
+                                    : "transparent",
+                              },
+                            ]}
+                          >
+                            <Text
+                              style={{
+                                color: categories[item.colorKey].text,
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {item.name}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                    </ScrollView>
+                  </View>
+                )}
               </View>
 
               <View style={styles.buttonRow}>
@@ -225,16 +235,24 @@ const AddTodoModal = ({ visible, onClose, onAddTodo, selectedDate }) => {
                   onPress={() => {
                     if (!validateInputs()) return;
 
-                    const newTodo = {
-                      name: todoText,
-                      category: getCategoryTag(
-                        selectedCategory.name,
-                        selectedCategory.colorKey
-                      ),
-                      date: getISODate(todoYear, todoMonth, todoDate, 12),
-                    };
+                    if (personal) {
+                      const newTodo = {
+                        name: todoText,
+                        category: getCategoryTag(
+                          selectedCategory.name,
+                          selectedCategory.colorKey
+                        ),
+                        date: getISODate(todoYear, todoMonth, todoDate, 12),
+                      };
+                      onAddTodo(newTodo);
+                    } else {
+                      const newTodo = {
+                        name: todoText,
+                        date: getISODate(todoYear, todoMonth, todoDate, 12),
+                      };
+                      onAddTodo(newTodo);
+                    }
 
-                    onAddTodo(newTodo);
                     onClose();
                   }}
                 >

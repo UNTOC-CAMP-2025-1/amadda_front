@@ -16,6 +16,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const SignUpScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
+  const [isEmailSended, setIsEmailSended] = useState(false);
   const [code, setCode] = useState("");
   const [codeVerified, setCodeVerified] = useState(false);
   const [username, setUsername] = useState("");
@@ -88,6 +89,7 @@ const SignUpScreen = () => {
               value={email}
               onChangeText={setEmail}
               maxLength={20}
+              editable={!isEmailSended}
             />
           </ImageBackground>
           <TouchableOpacity
@@ -111,6 +113,7 @@ const SignUpScreen = () => {
                     ["emailSendTime", sendTime.toString()],
                     ["emailAddress", email],
                   ]);
+                  setIsEmailSended(true); 
                 } else {
                   alert("예상치 못한 응답이 왔습니다.");
                 }
@@ -288,7 +291,7 @@ const SignUpScreen = () => {
                 return;
               }
               if (password.length < 6) {
-                alert("비밀번호가 너무 짧습니다. 6자 이상으로 입력해주세요.");
+                alert("비밀번호가 너무 짧습니다.\n6자 이상으로 입력해주세요.");
                 return;
               }
               try {

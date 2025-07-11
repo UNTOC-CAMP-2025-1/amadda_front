@@ -19,6 +19,7 @@ import styles from "../styles/FindPwScreenStyles";
 const FindPwScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
+  const [isEmailSended, setIsEmailSended] = useState(false);
   const [code, setCode] = useState("");
   const [codeVerified, setCodeVerified] = useState(false);
   const [password, setPassword] = useState("");
@@ -90,6 +91,7 @@ const FindPwScreen = () => {
               value={email}
               onChangeText={setEmail}
               maxLength={45}
+              editable={!isEmailSended}
             />
           </ImageBackground>
           <TouchableOpacity
@@ -100,10 +102,14 @@ const FindPwScreen = () => {
                 return;
               }
               try {
-                const res = await api.post(
-                  "/email/request",
-                  { email },
-                );
+              const res = await api.post("/email/user_request", 
+                {
+                  email: email
+                },
+                {
+                  headers: { "Authorization": undefined }
+                }
+              );
 
                 // 상태 코드가 200이면 성공 처리
                 if (res.status === 200) {
@@ -113,6 +119,7 @@ const FindPwScreen = () => {
                     ["emailSendTime", sendTime.toString()],
                     ["emailAddress", email],
                   ]);
+                  setIsEmailSended(true); 
                 } else {
                   alert("예상치 못한 응답이 왔습니다.");
                 }
@@ -120,6 +127,8 @@ const FindPwScreen = () => {
               } catch (err) {
                 if (err.response?.status === 422) {
                   alert("잘못된 이메일 형식입니다.");
+                } else if (err.response?.status === 405) {
+                  alert("이메일을 다시 확인해주세요.");
                 } else {
                   console.error("서버 응답 상태:", err.response?.status);
                   console.error("서버 응답 데이터:", err.response?.data);
@@ -272,7 +281,7 @@ const FindPwScreen = () => {
                 return;
               }
               if (password.length < 6) {
-                alert("비밀번호가 너무 짧습니다. 6자 이상으로 입력해주세요.");
+                alert("비밀번호가 너무 짧습니다.\n6자 이상으로 입력해주세요.");
                 return;
               }
               try {
@@ -302,10 +311,15 @@ const FindPwScreen = () => {
               } catch (err) {
                 if (err.response?.status === 401) {
                   alert("인증 정보가 유효하지 않습니다.");
+                  setIsEmailSended(false);
+                } else if (error.response?.status === 409) {
+                  alert("이메일 인증을 다시 시도해주세요.")
+                  setIsEmailSended(false);
                 } else {
                   console.error("서버 응답 상태:", err.response?.status);
                   console.error("서버 응답 데이터:", err.response?.data);
-                  alert("비밀번호 변경 중 오류가 발생했습니다.");
+                  alert("비밀번호 변경 중 오류가 발생했습니다.\n다시 시도해주세요.");
+                  setIsEmailSended(false);
                 }
               }
             }}

@@ -45,6 +45,36 @@ const SettingScreen = () => {
     loadCategoriesList();
   }, []);
 
+  const updateCategoriesFromServer = async () => {
+    try {
+      const userResponse = await api.get("/users/info");
+      setUserInfo(userResponse.data);
+      if (userResponse.data?.categories) {
+        const parsed = userResponse.data.categories.map((item) => {
+          const [name, colorNumber] = item.split("-");
+          const colorKey = `category${colorNumber}`;
+          const existing = categoriesList.find(
+            (c) => c.name === name && c.colorKey === colorKey
+          );
+          // 기존에 있으면 id 유지, 없으면 새 id 부여
+          const maxId = categoriesList.reduce(
+            (max, c) => (c.id > max ? c.id : max),
+            0
+          );
+          return {
+            id: existing ? existing.id : maxId + 1,
+            name,
+            colorKey,
+          };
+        });
+        setCategoriesList(parsed);
+        await saveCategoriesList(parsed);
+      }
+    } catch (err) {
+      console.error("유저 정보 갱신 실패:", err);
+    }
+  };
+
   const saveCategoriesList = async (data) => {
     try {
       await AsyncStorage.setItem("categoriesList", JSON.stringify(data));
@@ -120,10 +150,11 @@ const SettingScreen = () => {
     if (newCategoryName.trim() === "") {
       return;
     }
-    const newId =
-      categoriesList.length > 0
-        ? categoriesList[categoriesList.length - 1].id + 1
-        : 1;
+    const maxId = categoriesList.reduce(
+      (max, c) => (c.id > max ? c.id : max),
+      0
+    );
+    const newId = maxId + 1;
     const newCategory = {
       id: newId,
       name: newCategoryName.trim(),
@@ -135,25 +166,17 @@ const SettingScreen = () => {
     setIsCategoryModalVisible(false);
 
     try {
-      // colorKey에서 숫자 추출
       const colorIndex = selectedColorKey.replace("category", "");
-
-      // 요청
       const response = await api.post("/plan/push_category", {
         category: `${newCategory.name}-${colorIndex}`,
       });
 
       console.log("카테고리 서버 등록 응답:", response);
 
-      // 성공 처리
       Alert.alert("성공", "카테고리가 등록되었습니다.");
-      try {
-        const userResponse = await api.get("/users/info");
-        setUserInfo(userResponse.data);
-        console.log("유저 정보 갱신:", userResponse.data);
-      } catch (fetchError) {
-        console.error("유저 정보 재조회 실패:", fetchError);
-      }
+
+      await updateCategoriesFromServer();
+
     } catch (error) {
       if (error.response) {
         console.error("카테고리 서버 등록 실패:", error.response.data);
@@ -174,15 +197,12 @@ const SettingScreen = () => {
       return;
     }
 
-    // 기존 카테고리 이름-번호
-    const oldColorIndex = editingCategory.colorKey.replace("category", ""); // 예: "category3" -> "3"
+    const oldColorIndex = editingCategory.colorKey.replace("category", "");
     const oldCategoryString = `${editingCategory.name}-${oldColorIndex}`;
 
-    // 새로운 카테고리 이름-번호
     const newColorIndex = editingColorKey.replace("category", "");
     const newCategoryString = `${editingCategoryName.trim()}-${newColorIndex}`;
 
-    // 로컬 상태 업데이트
     const newList = categoriesList.map((cat) =>
       cat.id === editingCategory.id
         ? {
@@ -196,7 +216,6 @@ const SettingScreen = () => {
     await saveCategoriesList(newList);
     setIsEditCategoryModalVisible(false);
 
-    // 서버 요청
     try {
       const response = await api.post("/plan/change_category", {
         category: oldCategoryString,
@@ -205,13 +224,8 @@ const SettingScreen = () => {
 
       console.log("카테고리 수정 서버 응답:", response);
       Alert.alert("변경 완료", "카테고리가 수정되었습니다.");
-      try {
-        const userResponse = await api.get("/users/info");
-        setUserInfo(userResponse.data);
-        console.log("유저 정보 갱신:", userResponse.data);
-      } catch (fetchError) {
-        console.error("유저 정보 재조회 실패:", fetchError);
-      }
+
+      await updateCategoriesFromServer();
     } catch (error) {
       if (error.response) {
         console.error("카테고리 수정 실패:", error.response.data);
@@ -251,16 +265,9 @@ const SettingScreen = () => {
 
       console.log("삭제 서버 응답:", response);
 
-      // 서버에서 유저 정보 다시 가져오기
-      try {
-        const userResponse = await api.get("/users/info");
-        setUserInfo(userResponse.data);
-        console.log("유저 정보 갱신:", userResponse.data);
-      } catch (fetchError) {
-        console.error("유저 정보 재조회 실패:", fetchError);
-      }
-
       Alert.alert("삭제 완료", "카테고리가 삭제되었습니다.");
+
+      await updateCategoriesFromServer();
     } catch (error) {
       if (error.response) {
         console.error("카테고리 서버 삭제 실패:", error.response.data);
@@ -433,6 +440,7 @@ const SettingScreen = () => {
               <View style={styles.categoryContainer}>
                 <FlatList
                   data={categoriesList}
+                  scrollEnabled={false}
                   renderItem={({ item }) => (
                     <TouchableOpacity
                       onPress={() => {

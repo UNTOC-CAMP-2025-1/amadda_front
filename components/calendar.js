@@ -380,6 +380,7 @@ const Calendar = ({
         onClose={() => setIsAddTodoVisible(false)}
         onAddTodo={onAddTodo}
         selectedDate={selectedDate}
+        personal={personal}
       />
     </ScrollView>
   );

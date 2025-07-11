@@ -14,6 +14,7 @@ import api from "../api";
 import { jwtDecode } from "jwt-decode";
 
 const PersonalCalendar = () => {
+  const navigation = useNavigation();
   const [todos, setTodos] = useState({});
 
   const ensureValidAccessToken = async () => {
@@ -126,15 +127,44 @@ const PersonalCalendar = () => {
     }
   };
 
-  useEffect(() => {
-    const loadAllPlan = async () => {
-      try {
-        const tempTodos = {};
+  const loadAllPlan = async () => {
+    try {
+      const tempTodos = {};
 
-        const userRes = await api.get("/plan/plans");
-        const userTodos = userRes.data;
+      const userRes = await api.get("/plan/plans");
+      const userTodos = userRes.data;
 
-        userTodos.forEach((todo) => {
+      userTodos.forEach((todo) => {
+        const dateKey = todo.date.split("T")[0];
+        if (!tempTodos[dateKey]) {
+          tempTodos[dateKey] = [];
+        }
+
+        tempTodos[dateKey].push({
+          uuid: todo.uuid,
+          name: todo.name,
+          category: todo.category,
+          isActive: !todo.is_active,
+          isGroup: false,
+        });
+      });
+
+      // 그룹 부분 로딩
+      const userInfo = await api.get("/users/info");
+      // console.log(userInfo);
+      for (const group of userInfo.data.groups) {
+        const groupRes = await api.get("plan/group_plans", {
+          params: {
+            code: group.code,
+          },
+          headers: {
+            Authorization: `Bearer ${group.uuid}`,
+          },
+        });
+
+        const groupTodos = groupRes.data;
+
+        (groupTodos || []).forEach((todo) => {
           const dateKey = todo.date.split("T")[0];
           if (!tempTodos[dateKey]) {
             tempTodos[dateKey] = [];
@@ -145,49 +175,30 @@ const PersonalCalendar = () => {
             name: todo.name,
             category: todo.category,
             isActive: !todo.is_active,
-            isGroup: false,
+            isGroup: true,
           });
         });
-
-        // 그룹 부분 로딩
-        const userInfo = await api.get("/users/info");
-        // console.log(userInfo);
-        for (const group of userInfo.data.groups) {
-          const groupRes = await api.get("plan/group_plans", {
-            params: {
-              code: group.code,
-            },
-            headers: {
-              Authorization: `Bearer ${group.uuid}`,
-            },
-          });
-
-          const groupTodos = groupRes.data;
-
-          (groupTodos || []).forEach((todo) => {
-            const dateKey = todo.date.split("T")[0];
-            if (!tempTodos[dateKey]) {
-              tempTodos[dateKey] = [];
-            }
-
-            tempTodos[dateKey].push({
-              uuid: todo.uuid,
-              name: todo.name,
-              category: todo.category,
-              isActive: !todo.is_active,
-              isGroup: true,
-            });
-          });
-        }
-
-        setTodos(tempTodos);
-        // console.log("퍼스널", tempTodos); // 테스트
-      } catch (error) {
-        console.log("plan update 실패", error);
       }
-    };
+
+      setTodos(tempTodos);
+      // console.log("퍼스널", tempTodos); // 테스트
+    } catch (error) {
+      console.log("plan update 실패", error);
+    }
+  };
+
+  useEffect(() => {
     loadAllPlan();
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      console.log(">> 포커스 재진입: 일정 재로드");
+      loadAllPlan();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   return (
     <View style={styles.container}>

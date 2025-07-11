@@ -6,6 +6,8 @@ import SignUpScreen from "./screens/SignUpScreen";
 import MainTab from "./navigation/MainTab";
 import DeluserScreen from "./screens/DeluserScreen";
 import ChangePwScreen from "./screens/changePwScreen";
+import GroupScreen from "./screens/GroupScreen"
+import GroupListScreen from "./screens/GroupListScreen";
 import { AuthContext } from "./context/AuthContext";
 
 const Stack = createNativeStackNavigator();
@@ -49,6 +51,16 @@ export default function RootNavigator() {
             name="Deluser"
             options={{ title: "회원 탈퇴" }}
             component={DeluserScreen}
+          />
+          <Stack.Screen
+            name="GroupScreen"
+            component={GroupScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="GroupListScreen"
+            component={GroupListScreen}
+            options={{ headerShown: false }}
           />
         </>
       )}
